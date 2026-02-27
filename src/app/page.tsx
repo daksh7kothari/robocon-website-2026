@@ -19,6 +19,7 @@ import RoboConEvent from "@/components/RoboConEvent";
 import RecruitmentSection from "@/components/RecruitmentSection";
 import HackathonSection from "@/components/HackathonSection";
 import JoselinSection from "@/components/JoselinSection";
+import WorkshopReg from "@/app/workshopReg/page";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -90,20 +91,20 @@ export default function Home() {
       <section className="w-full h-full md:h-screen flex flex-col items-center justify-center mt-20 md:mt-0">
         <div className="flex flex-col items-center" data-aos="fade-up">
           <div className="flex flex-wrap gap-4 md:gap-0 w-full justify-center">
-            
-          <div className="flex items-center justify-center gap-10 flex-wrap text-white">
-          <div className="flex flex-col justify-center items-center">
-            <div className="text-4xl md:text-6xl flex items-center justify-center w-32 md:w-48">
-             75
-              
-              
+
+            <div className="flex items-center justify-center gap-10 flex-wrap text-white">
+              <div className="flex flex-col justify-center items-center">
+                <div className="text-4xl md:text-6xl flex items-center justify-center w-32 md:w-48">
+                  75
+
+
+                </div>
+                <div className="w-full text-wrap text-center mt-2">
+                  Team Members
+                </div>
+              </div>
             </div>
-            <div className="w-full text-wrap text-center mt-2">
-              Team Members
-            </div>
-          </div>
-        </div>
-            
+
             <CountUpUnit upto={noOfRobots} label="Robots" />
             <CountUpUnit upto={noOfParticipations} label="Participations / year" />
             <CountUpUnit upto={noOfAlumni} label="Alumni" />
@@ -146,20 +147,24 @@ export default function Home() {
       {/* <section className="relative max-md:mt-20">
         <RoboConEvent />
       </section> */}
-      
+
       {/*Recruitment section*/}
-        {/* <section className="relative max-md:mt-20">
+      {/* <section className="relative max-md:mt-20">
         <RecruitmentSection /> */}
       {/* Third section */}
+
+      {/* <section className="w-full h-full mt-20">
+        <WorkshopReg />
+      </section> */}
       <section className="w-full h-full">
         <div className="text-3xl md:text-4xl pl-10 md:pl-44 mt-44 text-white">
           Our Sponsors
         </div>
-        <SponsorCarousel/>
+        <SponsorCarousel />
       </section>
 
       {/* Footer */}
-      <Footer/>
+      <Footer />
     </div>
   );
 }
