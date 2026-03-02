@@ -478,9 +478,9 @@ export default function App() {
 
                 <div className="space-y-3 mb-5">
                   <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
                       <svg
-                        className="w-4 h-4 text-blue-400"
+                        className="w-4 h-4 text-indigo-400"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -489,12 +489,12 @@ export default function App() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                          d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
                     </div>
                     <span className="text-gray-300">
-                      UPI • Cards • Net Banking • Wallets
+                      <span className="text-white font-medium">UPI</span> • Cards • Net Banking • Wallets
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">

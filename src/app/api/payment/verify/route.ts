@@ -26,11 +26,14 @@ export async function POST(req: NextRequest) {
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest("hex");
 
-        // Constant-time comparison to prevent timing attacks
-        const isValid = crypto.timingSafeEqual(
-            Buffer.from(generatedSignature, "hex"),
-            Buffer.from(razorpay_signature, "hex")
-        );
+        const generatedBuffer = Buffer.from(generatedSignature, "hex");
+        const signatureBuffer = Buffer.from(razorpay_signature, "hex");
+
+        // Constant-time comparison to prevent timing attacks, only if lengths match
+        let isValid = false;
+        if (generatedBuffer.length === signatureBuffer.length) {
+            isValid = crypto.timingSafeEqual(generatedBuffer, signatureBuffer);
+        }
 
         if (isValid) {
             console.log(
