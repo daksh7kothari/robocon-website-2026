@@ -1,5 +1,6 @@
 import Razorpay from "razorpay";
 import { NextRequest, NextResponse } from "next/server";
+import { sendConfirmationEmails } from "@/lib/send-emails";
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID!,
@@ -78,6 +79,11 @@ export async function POST(req: NextRequest) {
 
         console.log(
             `✅ Registration submitted — Payment: ${paymentId}, Order: ${orderId}`
+        );
+
+        // Send confirmation emails (fire-and-forget — don't block the response)
+        sendConfirmationEmails({ formData, paymentId, orderId }).catch((err) =>
+            console.error("❌ Email sending failed:", err.message)
         );
 
         return NextResponse.json({ success: true });
