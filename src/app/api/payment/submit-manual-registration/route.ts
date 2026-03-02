@@ -24,22 +24,28 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Submit to Google Sheets from the server
-        const fd = new FormData();
+        // Submit to Google Sheets from the server (URLSearchParams for server-side compatibility)
+        const params = new URLSearchParams();
         for (const [key, value] of Object.entries(formData)) {
-            fd.append(key, value as string);
+            params.append(key, value as string);
         }
-        fd.append("PaymentID", "");
-        fd.append("OrderID", "");
-        fd.append("TransactionID", transactionId.trim());
-        fd.append("PaymentStatus", "PENDING");
+        params.append("PaymentID", "");
+        params.append("OrderID", "");
+        params.append("TransactionID", transactionId.trim());
+        params.append("PaymentStatus", "PENDING");
 
         const sheetRes = await fetch(GOOGLE_SHEET_URL, {
             method: "POST",
-            body: fd,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params.toString(),
+            redirect: "follow",
         });
 
-        if (!sheetRes.ok) {
+        const sheetText = await sheetRes.text();
+        let sheetData: any = {};
+        try { sheetData = JSON.parse(sheetText); } catch { }
+
+        if (!sheetRes.ok && !sheetData.result) {
             console.error("Google Sheets submission failed:", sheetRes.status);
             return NextResponse.json(
                 { error: "Registration submission failed" },
@@ -48,7 +54,6 @@ export async function POST(req: NextRequest) {
         }
 
         // Check for duplicate registration
-        const sheetData = await sheetRes.json().catch(() => ({}));
         if (sheetData.result === "duplicate") {
             return NextResponse.json(
                 { error: "This registration number is already registered for the workshop." },
@@ -60,8 +65,8 @@ export async function POST(req: NextRequest) {
             `⏳ Manual UPI registration submitted — UTR: ${transactionId}, Name: ${formData.Name}`
         );
 
-        // Send confirmation emails (fire-and-forget)
-        sendConfirmationEmails({
+        // Send confirmation emails (await so Vercel doesn't kill the function early)
+        await sendConfirmationEmails({
             formData,
             paymentId: `UTR-${transactionId.trim()}`,
             orderId: "MANUAL_UPI",
