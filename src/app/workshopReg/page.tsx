@@ -100,26 +100,19 @@ export default function App() {
     return null;
   }
 
-  async function submitToGoogleSheets(
+  async function submitRegistration(
     formData: Record<string, string>,
     paymentId: string,
     orderId: string
   ) {
-    const fd = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      fd.append(key, value);
+    const response = await fetch("/api/payment/submit-registration", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ formData, paymentId, orderId }),
     });
-    fd.append("PaymentID", paymentId);
-    fd.append("OrderID", orderId);
-    fd.append("PaymentStatus", "VERIFIED");
-    try {
-      await fetch(
-        "https://script.google.com/macros/s/AKfycby9w-7ZDzsLxXakw5rlKGVjL_A3uZRbZDgvkfXukCPw06kpqn9pqD3DPMh3UuKOFfcFJg/exec",
-        { method: "POST", body: fd, mode: "no-cors" }
-      );
-    } catch (error) {
-      console.error("Google Sheets Error:", error);
-      throw new Error("Failed to submit connection. Check your network.");
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to submit registration");
     }
   }
 
@@ -190,7 +183,7 @@ export default function App() {
             const verifyData = await verifyRes.json();
             if (verifyData.verified) {
               setPaymentState("submitting");
-              await submitToGoogleSheets(
+              await submitRegistration(
                 formData,
                 response.razorpay_payment_id,
                 response.razorpay_order_id
@@ -203,19 +196,22 @@ export default function App() {
               }, 1500);
             } else {
               setPaymentState("failed");
-              setPaymentError(
-                "Payment verification failed. If money was deducted, it will be refunded within 5-7 business days."
-              );
+              const reason = "Payment verification failed. If money was deducted, it will be refunded within 5-7 business days.";
+              setPaymentError(reason);
               setLoading(false);
+              setTimeout(() => {
+                router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
+              }, 3000);
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error("Verification error:", err);
             setPaymentState("failed");
-            setPaymentError(
-              "Verification failed. Please contact support with your payment ID: " +
-              response.razorpay_payment_id
-            );
+            const reason = "Verification failed. Please contact support with your payment ID: " + response.razorpay_payment_id;
+            setPaymentError(reason);
             setLoading(false);
+            setTimeout(() => {
+              router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
+            }, 3000);
           }
         },
       };
@@ -228,17 +224,23 @@ export default function App() {
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (response: any) {
         setPaymentState("failed");
-        setPaymentError(
-          response.error?.description || "Payment failed. Please try again."
-        );
+        const reason = response.error?.description || "Payment failed. Please try again.";
+        setPaymentError(reason);
         setLoading(false);
+        setTimeout(() => {
+          router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
+        }, 3000);
       });
       rzp.open();
     } catch (err: any) {
       console.error("Payment error:", err);
       setPaymentState("failed");
-      setPaymentError(err.message || "Something went wrong. Please try again.");
+      const reason = err.message || "Something went wrong. Please try again.";
+      setPaymentError(reason);
       setLoading(false);
+      setTimeout(() => {
+        router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
+      }, 3000);
     }
   }
 

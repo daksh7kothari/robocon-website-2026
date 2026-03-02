@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className={aldrich.className}>
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
         <MenuContextProvider>
           {children}
