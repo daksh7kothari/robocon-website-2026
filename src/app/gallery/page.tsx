@@ -247,7 +247,7 @@ export default function GalleryPage() {
 
       {/* Carousel Section */}
       <div className="w-full h-full z-0 py-20">
-        <h2 className="max-w-7xl pl-4 mx-auto text-xl z-50 md:text-5xl font-bold text-neutral-800 dark:text-neutral-200 font-sans">
+        <h2 className="max-w-7xl pl-4 mx-auto text-xl text-white z-50 md:text-5xl font-bold text-neutral-800 dark:text-neutral-200 font-sans">
           Our Gallery
         </h2>
         <Carousel

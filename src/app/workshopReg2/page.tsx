@@ -7,19 +7,10 @@ import Header from "@/components/Header";
 import "./styles.css";
 import { useRouter } from "next/navigation";
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
-const WORKSHOP_AMOUNT = 60000; // ₹600 in paise
+const WORKSHOP_AMOUNT = 600; // ₹600
 
 type PaymentState =
   | "idle"
-  | "creating"
-  | "paying"
-  | "verifying"
   | "submitting"
   | "success"
   | "failed";
@@ -61,6 +52,7 @@ export default function App() {
   const [paymentState, setPaymentState] = useState<PaymentState>("idle");
   const [paymentError, setPaymentError] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
 
 
 
@@ -96,19 +88,24 @@ export default function App() {
     if (!data.Workshop || data.Workshop === "default") {
       return "Please select a workshop";
     }
+    if (!data.TransactionID?.trim()) {
+      return "Please enter the UTR/Transaction ID from your UPI app";
+    }
+    if (!/^\d{12}$/.test(data.TransactionID.trim())) {
+      return "Wait! The Transaction ID (UTR) must be exactly 12 numerical digits. Check your payment app (GPay, PhonePe, etc).";
+    }
 
     return null;
   }
 
   async function submitRegistration(
     formData: Record<string, string>,
-    paymentId: string,
-    orderId: string
+    transactionId: string
   ) {
-    const response = await fetch("/api/payment/submit-registration", {
+    const response = await fetch("/api/payment/submit-manual-registration", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ formData, paymentId, orderId }),
+      body: JSON.stringify({ formData, transactionId }),
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
@@ -129,117 +126,28 @@ export default function App() {
     setMessage("");
     setError(false);
     setPaymentError("");
-    setPaymentState("creating");
+    setPaymentState("submitting");
     setLoading(true);
 
     try {
-      const orderRes = await fetch("/api/payment/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: WORKSHOP_AMOUNT,
-          workshop: formData.Workshop,
-          name: formData.Name,
-          email: formData.OfficialSRMEmailID,
-        }),
-      });
-      if (!orderRes.ok) throw new Error("Failed to create payment order");
-      const orderData = await orderRes.json();
-
-      setPaymentState("paying");
-
-      const options = {
-        key: orderData.key,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "SRM Team Robocon",
-        description: `${formData.Workshop} Workshop Registration`,
-        order_id: orderData.orderId,
-        prefill: {
-          name: formData.Name,
-          email: formData.OfficialSRMEmailID,
-          contact: formData.ContactNumber,
-        },
-        theme: { color: "#e11d48", backdrop_color: "rgba(0,0,0,0.85)" },
-        modal: {
-          ondismiss: () => {
-            setPaymentState("idle");
-            setLoading(false);
-            setMessage("Payment was cancelled. You can try again.");
-          },
-        },
-        handler: async function (response: any) {
-          setPaymentState("verifying");
-          try {
-            const verifyRes = await fetch("/api/payment/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (verifyData.verified) {
-              setPaymentState("submitting");
-              await submitRegistration(
-                formData,
-                response.razorpay_payment_id,
-                response.razorpay_order_id
-              );
-              setPaymentState("success");
-              setTimeout(() => {
-                router.push(
-                  `/workshopReg/success?paymentId=${response.razorpay_payment_id}&orderId=${response.razorpay_order_id}`
-                );
-              }, 1500);
-            } else {
-              setPaymentState("failed");
-              const reason = "Payment verification failed. If money was deducted, it will be refunded within 5-7 business days.";
-              setPaymentError(reason);
-              setLoading(false);
-              setTimeout(() => {
-                router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
-              }, 3000);
-            }
-          } catch (err: any) {
-            console.error("Verification error:", err);
-            setPaymentState("failed");
-            const reason = "Verification failed. Please contact support with your payment ID: " + response.razorpay_payment_id;
-            setPaymentError(reason);
-            setLoading(false);
-            setTimeout(() => {
-              router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
-            }, 3000);
-          }
-        },
-      };
-
-      if (typeof window.Razorpay === "undefined") {
-        throw new Error(
-          "Payment system is loading. Please try again in a moment."
+      await submitRegistration(
+        formData,
+        formData.TransactionID.trim()
+      );
+      setPaymentState("success");
+      setTimeout(() => {
+        router.push(
+          `/workshopReg2/success?transactionId=${formData.TransactionID.trim()}`
         );
-      }
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response: any) {
-        setPaymentState("failed");
-        const reason = response.error?.description || "Payment failed. Please try again.";
-        setPaymentError(reason);
-        setLoading(false);
-        setTimeout(() => {
-          router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
-        }, 3000);
-      });
-      rzp.open();
+      }, 1500);
     } catch (err: any) {
-      console.error("Payment error:", err);
+      console.error("Submission error:", err);
       setPaymentState("failed");
       const reason = err.message || "Something went wrong. Please try again.";
       setPaymentError(reason);
       setLoading(false);
       setTimeout(() => {
-        router.push(`/workshopReg/failed?reason=${encodeURIComponent(reason)}`);
+        router.push(`/workshopReg2/failed?reason=${encodeURIComponent(reason)}`);
       }, 3000);
     }
   }
@@ -261,69 +169,7 @@ export default function App() {
           {/* subtle glow */}
           <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-60 h-60 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          {paymentState === "creating" && (
-            <div className="text-center relative z-10">
-              <div className="w-20 h-20 mx-auto mb-5 border-[3px] border-rose-500 border-t-transparent rounded-full animate-spin" />
-              <h3 className="text-2xl text-white font-bold mb-2">
-                Creating Your Order
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Setting up a secure payment channel...
-              </p>
-            </div>
-          )}
 
-          {paymentState === "paying" && (
-            <div className="text-center relative z-10">
-              <div className="w-20 h-20 mx-auto mb-5 bg-rose-500/10 rounded-2xl flex items-center justify-center border border-rose-500/20">
-                <svg
-                  className="w-10 h-10 text-rose-400 animate-pulse"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-2xl text-white font-bold mb-2">
-                Complete Your Payment
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Razorpay checkout window is open. Finish the payment there.
-              </p>
-            </div>
-          )}
-
-          {paymentState === "verifying" && (
-            <div className="text-center relative z-10">
-              <div className="w-20 h-20 mx-auto mb-5 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/20">
-                <svg
-                  className="w-10 h-10 text-amber-400 animate-pulse"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-2xl text-white font-bold mb-2">
-                Verifying Payment
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Cryptographic signature check in progress...
-              </p>
-            </div>
-          )}
 
           {paymentState === "submitting" && (
             <div className="text-center relative z-10">
@@ -332,7 +178,7 @@ export default function App() {
                 Registering You
               </h3>
               <p className="text-gray-400 text-sm">
-                Payment verified! Submitting your registration...
+                Submitting your registration...
               </p>
             </div>
           )}
@@ -355,7 +201,7 @@ export default function App() {
                 </svg>
               </div>
               <h3 className="text-2xl text-white font-bold mb-2">
-                Payment Successful! 🎉
+                Registration Successful! 🎉
               </h3>
               <p className="text-emerald-400 text-sm">
                 Redirecting to confirmation page...
@@ -430,10 +276,9 @@ export default function App() {
 
       {/* Main Content — Payment Card + Form */}
       <div className="max-w-6xl mx-auto px-5 md:px-4 pb-6">
-        <div className="flex gap-5 md:gap-8 justify-center items-start flex-wrap lg:flex-nowrap">
-          {/* Left Column — Payment + Info (shows below form on mobile) */}
-          <div className="w-full max-w-none md:max-w-[380px] space-y-4 md:space-y-5 flex-shrink-0 order-2 lg:order-1">
-            {/* Payment Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5 md:gap-8 justify-center items-start">
+          {/* Payment Card — order 1 on mobile, top-left on desktop */}
+          <div className="order-1 lg:col-start-1 lg:row-start-1">
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-850 to-gray-900 border border-gray-700/30 p-6 shadow-2xl shadow-rose-500/5">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(225,29,72,0.06),transparent_70%)] pointer-events-none" />
               <div className="relative z-10">
@@ -455,10 +300,10 @@ export default function App() {
                   </div>
                   <div>
                     <h4 className="text-white font-bold text-lg leading-tight">
-                      Secure Payment
+                      Pay via UPI
                     </h4>
                     <p className="text-gray-500 text-xs">
-                      Powered by Razorpay
+                      Scan or copy the UPI ID below
                     </p>
                   </div>
                 </div>
@@ -482,116 +327,77 @@ export default function App() {
                   </div>
                 </div>
 
+                {/* QR Code */}
+                <div className="w-full aspect-square bg-white rounded-xl mb-5 flex items-center justify-center p-2 shadow-inner overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/upi-qr.jpg"
+                    alt="Scan to Pay via UPI"
+                    className="w-full h-full object-contain mix-blend-multiply"
+                  />
+                </div>
+
                 <div className="space-y-3 mb-5">
-                  <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="w-4 h-4 text-indigo-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-gray-300">
-                      <span className="text-white font-medium">UPI</span> • Cards • Net Banking • Wallets
+                  <div className="flex items-center justify-between bg-gray-800/80 border border-gray-700/50 rounded-lg px-4 py-3 shadow-inner">
+                    <span className="text-gray-300 font-mono text-sm tracking-widest font-medium">
+                      81045352551-2@ybl
                     </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="w-4 h-4 text-emerald-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-gray-300">
-                      256-bit SSL encrypted
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="w-4 h-4 text-amber-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-gray-300">
-                      Server-verified signatures
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const upiId = "81045352551-2@ybl";
+                        if (navigator.clipboard && window.isSecureContext) {
+                          navigator.clipboard.writeText(upiId).then(() => {
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }).catch(() => {
+                            // Fallback
+                            const ta = document.createElement("textarea");
+                            ta.value = upiId;
+                            ta.style.position = "fixed";
+                            ta.style.opacity = "0";
+                            document.body.appendChild(ta);
+                            ta.select();
+                            document.execCommand("copy");
+                            document.body.removeChild(ta);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          });
+                        } else {
+                          // Fallback for non-secure contexts
+                          const ta = document.createElement("textarea");
+                          ta.value = upiId;
+                          ta.style.position = "fixed";
+                          ta.style.opacity = "0";
+                          document.body.appendChild(ta);
+                          ta.select();
+                          document.execCommand("copy");
+                          document.body.removeChild(ta);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }
+                      }}
+                      className={`text-xs px-3 py-1.5 rounded-md transition-colors font-medium border ${copied
+                        ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20"
+                        : "bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border-rose-500/20"
+                        }`}
+                    >
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-gray-800/50 border border-gray-700/30 rounded-lg px-3 py-2">
-                  <span className="text-gray-500 text-xs">
-                    Your payment is verified cryptographically before
-                    registration is confirmed.
+                <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-lg px-4 py-3">
+                  <span className="text-rose-400 text-xs font-medium text-center w-full leading-relaxed">
+                    Please paste the 12-digit UTR/Transaction ID in the form to confirm registration.
                   </span>
                 </div>
               </div>
             </div>
-
-            {/* Workshop highlights mini-card */}
-            <div className="rounded-2xl bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/30 p-5">
-              <h4 className="text-white font-bold text-sm mb-3 uppercase tracking-wider">
-                What You Get
-              </h4>
-              <div className="space-y-2.5">
-                {[
-                  "Hands-on 3D modeling sessions",
-                  "Part, Assembly & Drawing mastery",
-                  "Mini design challenge",
-                  "Official certificate",
-                  "Workshop materials & resources",
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    <div className="w-5 h-5 rounded-full bg-rose-500/15 flex items-center justify-center flex-shrink-0">
-                      <svg
-                        className="w-3 h-3 text-rose-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={3}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-gray-300 text-sm">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Right Column — Registration Form (shows first on mobile) */}
-          <div className="w-full max-w-none md:max-w-lg order-1 lg:order-2">
+          {/* Registration Form — order 2 on mobile, right column on desktop spanning both rows */}
+          <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2">
             <div className="rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-700/30 p-5 md:p-8 shadow-2xl backdrop-blur-sm">
               <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                 <svg
@@ -797,6 +603,24 @@ export default function App() {
                   </select>
                 </div>
 
+                {/* Transaction ID */}
+                <div className="relative z-0 w-full group pt-2 pb-2">
+                  <input
+                    type="text"
+                    name="TransactionID"
+                    id="TransactionID"
+                    pattern="[0-9]{12}"
+                    maxLength={12}
+                    className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-rose-500 peer transition-colors"
+                    placeholder=" "
+                    title="Exact 12 digit UTR number from UPI App"
+                    required
+                  />
+                  <label className="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-rose-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                    Transaction ID (12-Digit UPI UTR)
+                  </label>
+                </div>
+
                 {/* Submit area */}
                 <div className="pt-2 space-y-3">
                   <button
@@ -859,6 +683,43 @@ export default function App() {
                   {message}
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* What You Get — order 3 on mobile, bottom-left on desktop */}
+          <div className="order-3 lg:col-start-1 lg:row-start-2">
+            <div className="rounded-2xl bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-700/30 p-5">
+              <h4 className="text-white font-bold text-sm mb-3 uppercase tracking-wider">
+                What You Get
+              </h4>
+              <div className="space-y-2.5">
+                {[
+                  "Hands-on 3D modeling sessions",
+                  "Part, Assembly & Drawing mastery",
+                  "Mini design challenge",
+                  "Official certificate",
+                  "Workshop materials & resources",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <div className="w-5 h-5 rounded-full bg-rose-500/15 flex items-center justify-center flex-shrink-0">
+                      <svg
+                        className="w-3 h-3 text-rose-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={3}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                    <span className="text-gray-300 text-sm">{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
