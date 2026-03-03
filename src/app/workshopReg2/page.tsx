@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import "./styles.css";
 import { useRouter } from "next/navigation";
 
-const WORKSHOP_AMOUNT = 600; // ₹600
+const WORKSHOP_AMOUNT = 599; // ₹599
 
 type PaymentState =
   | "idle"
@@ -17,28 +17,24 @@ type PaymentState =
 
 const faqs = [
   {
-    q: "What will I learn in the Solidworks Workshop?",
-    a: "You'll master 3D CAD modeling from scratch — parts, assemblies, engineering drawings, and simulation basics. Perfect for robotics, mechanical projects, and design competitions.",
+    q: "What will I learn in these workshops?",
+    a: "In the Solidworks workshop (Hi-Tech 513), you'll learn to design CAD models and simulate them. In the Altium workshop, you'll learn PCB designing and simulations. Both feature hands-on approaches with industry certified mentors.",
   },
   {
-    q: "Do I need prior CAD experience?",
-    a: "No! This workshop is beginner-friendly. We start from the basics and work up to intermediate-level assemblies and simulations.",
+    q: "When and where are the workshops?",
+    a: "We are holding our flagship SolidWorks and Altium workshops on 11th, 12th and 13th of March, from 9 a.m. to 3 p.m. each day. The Solidworks workshop is happening at Hi-Tech 513.",
   },
   {
     q: "What should I bring?",
-    a: "Just your laptop with Solidworks installed (we'll share the installation guide before the workshop) and a notebook for quick sketches.",
+    a: "Please bring your own laptop for the Altium workshop. It is also recommended for the Solidworks workshop.",
   },
   {
-    q: "How long is the workshop?",
-    a: "The workshop spans a full day with hands-on sessions, guided projects, and a mini design challenge at the end.",
-  },
-  {
-    q: "Will I get a certificate?",
-    a: "Yes! Every participant who completes the workshop gets an official certificate from SRM Team Robocon.",
+    q: "Will I get a certificate and OD?",
+    a: "Yes! Full day certificates, ODs, and refreshments shall be provided for the 3 days of the workshop.",
   },
   {
     q: "Can I get a refund if I can't attend?",
-    a: "Refund requests must be made at least 48 hours before the workshop. Contact us on Instagram @srmteamrobocon for assistance.",
+    a: "No, there is no refund available for these workshops.",
   },
 ];
 
@@ -73,8 +69,8 @@ export default function App() {
       return "Please enter your registration number";
     if (!data.Department?.trim()) return "Please enter your department";
     if (!data.YourEmail?.trim()) return "Please enter your email";
-    if (!data.OfficialSRMEmailID?.endsWith("@srmist.edu.in")) {
-      return "Please enter a valid Official SRM Email ID ending with @srmist.edu.in";
+    if (data.OfficialSRMEmailID?.trim() && !data.OfficialSRMEmailID.endsWith("@srmist.edu.in")) {
+      return "If provided, Official SRM Email ID must end with @srmist.edu.in";
     }
     if (!/^\d{10}$/.test(data.ContactNumber || "")) {
       return "Please enter a valid 10-digit contact number";
@@ -262,14 +258,14 @@ export default function App() {
             REGISTRATIONS OPEN
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 md:mb-3">
-            Solidworks{" "}
+            SolidWorks & Altium{" "}
             <span className="bg-gradient-to-r from-rose-500 to-red-400 bg-clip-text text-transparent">
-              Workshop
+              Workshops
             </span>
           </h1>
           <p className="text-gray-400 text-base md:text-lg max-w-xl mx-auto">
-            Master 3D CAD modeling with hands-on projects. From basics to
-            assemblies — build real engineering designs.
+            Master 3D CAD modeling and PCB designing with hands-on projects. From basics to
+            advanced simulations guided by industry certified mentors.
           </p>
         </div>
       </div>
@@ -316,7 +312,7 @@ export default function App() {
                         Workshop Fee
                       </p>
                       <p className="text-white font-bold text-3xl mt-0.5">
-                        ₹600
+                        ₹599
                       </p>
                     </div>
                     <div className="text-right">
@@ -394,6 +390,7 @@ export default function App() {
                 </div>
               </div>
             </div>
+
           </div>
 
           {/* Registration Form — order 2 on mobile, right column on desktop spanning both rows */}
@@ -485,7 +482,7 @@ export default function App() {
                       id="floating_last_name"
                       className="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-gray-600 appearance-none focus:outline-none focus:ring-0 focus:border-rose-500 peer transition-colors"
                       placeholder=" "
-                      required
+
                     />
                     <label className="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-rose-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                       Official SRM Email ID
@@ -600,6 +597,7 @@ export default function App() {
                       Select one
                     </option>
                     <option value="Solidworks">Solidworks</option>
+                    <option value="Altium">Altium</option>
                   </select>
                 </div>
 
@@ -669,7 +667,7 @@ export default function App() {
                             d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                           />
                         </svg>
-                        Pay ₹600 & Register
+                        Pay ₹599 & Register
                       </span>
                     )}
                   </button>
@@ -694,9 +692,9 @@ export default function App() {
               </h4>
               <div className="space-y-2.5">
                 {[
-                  "Hands-on 3D modeling sessions",
-                  "Part, Assembly & Drawing mastery",
-                  "Mini design challenge",
+                  "Hands-on 3D modeling & PCB sessions",
+                  "Industry certified mentors",
+                  "ODs and Refreshments (3 Days)",
                   "Official certificate",
                   "Workshop materials & resources",
                 ].map((item, i) => (
@@ -738,7 +736,7 @@ export default function App() {
             </span>
           </h2>
           <p className="text-gray-400 text-sm md:text-base">
-            Everything you need to know about the Solidworks Workshop
+            Everything you need to know about the Workshops
           </p>
         </div>
 

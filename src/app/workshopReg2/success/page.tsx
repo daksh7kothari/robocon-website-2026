@@ -55,7 +55,7 @@ function SuccessContent() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Amount</span>
-                    <span className="text-emerald-400 font-bold">₹600</span>
+                    <span className="text-emerald-400 font-bold">₹599</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Status</span>

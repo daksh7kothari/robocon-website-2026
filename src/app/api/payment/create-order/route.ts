@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate amount matches expected price (₹600 = 60000 paise)
-        if (amount !== 60000) {
+        // Validate amount matches expected price (₹599 = 59900 paise)
+        if (amount !== 59900) {
             return NextResponse.json(
                 { error: "Invalid amount" },
                 { status: 400 }
