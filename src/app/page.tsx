@@ -20,6 +20,7 @@ import RecruitmentSection from "@/components/RecruitmentSection";
 import HackathonSection from "@/components/HackathonSection";
 import JoselinSection from "@/components/JoselinSection";
 import WorkshopReg from "@/app/workshopReg/page";
+import WorkshopSection from "@/components/WorkshopSection";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -85,8 +86,9 @@ export default function Home() {
       </section> */}
 
       {/*Workshop section*/}
-      {/* <section className="relative max-md:mt-20">
-        <WorkshopSection /> */}
+      <section className="relative max-md:mt-20">
+        <WorkshopSection />
+      </section>
 
       <section className="">
         <JoselinSection />
