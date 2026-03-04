@@ -79,8 +79,6 @@ export default function AdminLayout({
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <span className="text-gray-300 font-medium text-sm hidden sm:block">{username}</span>
-
                             <Link
                                 href="/admin/scanner"
                                 className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-500/30 text-emerald-400 font-bold transition-all border border-emerald-500/30"
