@@ -40,7 +40,7 @@ export default function EventDashboard() {
     // Action states
     const [verifyingRow, setVerifyingRow] = useState<number | null>(null);
 
-    const fetchData = async () => {
+    const fetchData = React.useCallback(async () => {
         setLoading(true);
         try {
             // Fetch User Role
@@ -63,11 +63,11 @@ export default function EventDashboard() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [eventName]);
 
     useEffect(() => {
         fetchData();
-    }, [eventName]);
+    }, [fetchData]);
 
     const handleVerify = async (row: RegistrationRow) => {
         setVerifyingRow(row.rowIndex);
