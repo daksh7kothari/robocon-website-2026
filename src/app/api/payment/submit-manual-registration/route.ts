@@ -65,14 +65,15 @@ export async function POST(req: NextRequest) {
             `⏳ Manual UPI registration submitted — UTR: ${transactionId}, Name: ${formData.Name}`
         );
 
-        // Send confirmation emails (await so Vercel doesn't kill the function early)
-        await sendConfirmationEmails({
-            formData,
-            paymentId: `UTR-${transactionId.trim()}`,
-            orderId: "MANUAL_UPI",
-        }).catch((err) =>
-            console.error("❌ Email sending failed:", err.message)
-        );
+        // WE NO LONGER SEND TICKETS IMMEDIATELY FOR MANUAL REGISTRATIONS
+        // The admin must verify the payment first via the /admin/dashboard, which will trigger the official ticket email.
+        // await sendConfirmationEmails({
+        //     formData,
+        //     paymentId: `UTR-${transactionId.trim()}`,
+        //     orderId: "MANUAL_UPI",
+        // }).catch((err) =>
+        //     console.error("❌ Email sending failed:", err.message)
+        // );
 
         return NextResponse.json({ success: true });
     } catch (error: any) {
