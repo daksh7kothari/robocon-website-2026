@@ -28,8 +28,11 @@ export default function DialogBoxEvents({
   const [isPhone, setPhone] = useState(false);
 
   useEffect(() => {
-    setPhone(window.innerWidth <= 768);
-  })
+    const handleResize = () => setPhone(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   return (
     <div className="dialog-box text-white bg-black overflow-y-scroll w-full h-full grid place-items-center no-scrollbar">
       <div className=" no-scrollbar grid gap-2 w-full h-full lg:w-5/6 py-2 px-4 border-y-0 rounded-3xl shadow-red shadow-2xl overflow-y-scroll">

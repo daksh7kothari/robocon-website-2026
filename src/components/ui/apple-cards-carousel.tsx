@@ -38,7 +38,7 @@ export const CarouselContext = createContext<{
   onCardClose: (index: number) => void;
   currentIndex: number;
 }>({
-  onCardClose: () => {},
+  onCardClose: () => { },
   currentIndex: 0,
 });
 
@@ -116,45 +116,45 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
           >
             {/* Map through the JSON data and render cards */}
             {jsonData.map((item, index) => (
-  <motion.div
-    initial={{
-      opacity: 0,
-      y: 20,
-    }}
-    animate={{
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.2 * index,
-        ease: "easeOut",
-        once: true,
-      },
-    }}
-    key={"card" + index}
-    className="last:pr-[5%] md:last:pr-[33%] rounded-3xl"
-  >
-    {/* Pass the JSON data into the Card component */}
-    <Card
-      card={{
-        src: item.src,
-        title: item.title,
-        category: item.category,
-        content: (
-          <div className="bg-gray-950 p-8 md:p-14 rounded-3xl mb-4">
-            <p className="text-neutral-600 hover:text-neutral-300 dark:text-neutral-400 text-base md:text-2xl font-sans max-w-3xl mx-auto">
-              <span className="font-bold text-red">
-                {item.title}
-              </span>{" "}
-              {item.content}
-            </p>
-          </div>
-        ),
-      }}
-      index={index}
-    />
-  </motion.div>
-))}
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: 0.5,
+                    delay: 0.2 * index,
+                    ease: "easeOut",
+                    once: true,
+                  },
+                }}
+                key={"card" + index}
+                className="last:pr-[5%] md:last:pr-[33%] rounded-3xl"
+              >
+                {/* Pass the JSON data into the Card component */}
+                <Card
+                  card={{
+                    src: item.src,
+                    title: item.title,
+                    category: item.category,
+                    content: (
+                      <div className="bg-gray-950 p-8 md:p-14 rounded-3xl mb-4">
+                        <p className="text-neutral-600 hover:text-neutral-300 dark:text-neutral-400 text-base md:text-2xl font-sans max-w-3xl mx-auto">
+                          <span className="font-bold text-red">
+                            {item.title}
+                          </span>{" "}
+                          {item.content}
+                        </p>
+                      </div>
+                    ),
+                  }}
+                  index={index}
+                />
+              </motion.div>
+            ))}
 
           </div>
         </div>
@@ -192,6 +192,11 @@ export const Card = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose, currentIndex } = useContext(CarouselContext);
 
+  const handleClose = React.useCallback(() => {
+    setOpen(false);
+    onCardClose(index);
+  }, [onCardClose, index]);
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -207,17 +212,12 @@ export const Card = ({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [open, handleClose]);
 
   useOutsideClick(containerRef, () => handleClose());
 
   const handleOpen = () => {
     setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    onCardClose(index);
   };
 
   return (

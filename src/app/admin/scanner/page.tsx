@@ -39,42 +39,7 @@ export default function ScannerPage() {
         fetchAnalytics(eventName);
     }, [eventName]);
 
-    useEffect(() => {
-        // Initialize scanner
-        if (!scannerRef.current) {
-            scannerRef.current = new Html5QrcodeScanner(
-                "qr-reader",
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-                },
-                false // verbose
-            );
-
-            scannerRef.current.render(
-                (decodedText) => {
-                    // Callback on successful scan
-                    if (!loadingRef.current) { // Prevent multiple rapid scans via ref
-                        handleScan(decodedText);
-                    }
-                },
-                (errorMessage) => {
-                    // Ignore general scan errors (happens constantly when waiting)
-                }
-            );
-        }
-
-        // Cleanup scanner on unmount
-        return () => {
-            if (scannerRef.current) {
-                scannerRef.current.clear().catch(e => console.error("Failed to clear scanner", e));
-                scannerRef.current = null;
-            }
-        };
-    }, []);
-
-    const handleScan = async (decodedText: string) => {
+    const handleScan = React.useCallback(async (decodedText: string) => {
         const cleanText = decodedText.trim();
         // Prevent rapid re-scans immediately
         if (loadingRef.current) return;
@@ -131,7 +96,42 @@ export default function ScannerPage() {
                 setMessage(null);
             }, 3000);
         }
-    };
+    }, [fetchAnalytics]);
+
+    useEffect(() => {
+        // Initialize scanner
+        if (!scannerRef.current) {
+            scannerRef.current = new Html5QrcodeScanner(
+                "qr-reader",
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+                },
+                false // verbose
+            );
+
+            scannerRef.current.render(
+                (decodedText) => {
+                    // Callback on successful scan
+                    if (!loadingRef.current) { // Prevent multiple rapid scans via ref
+                        handleScan(decodedText);
+                    }
+                },
+                (errorMessage) => {
+                    // Ignore general scan errors (happens constantly when waiting)
+                }
+            );
+        }
+
+        // Cleanup scanner on unmount
+        return () => {
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(e => console.error("Failed to clear scanner", e));
+                scannerRef.current = null;
+            }
+        };
+    }, [handleScan]);
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 pt-4 md:pt-8 px-4">
@@ -297,7 +297,7 @@ export default function ScannerPage() {
                     <p className="font-bold text-white text-base mb-2">Scanner Instructions</p>
                     <ul className="space-y-1.5 list-disc list-inside marker:text-blue-500">
                         <li>Grant camera permissions if your browser prompts you.</li>
-                        <li>Center the attendee's QR code in the frame with adequate lighting.</li>
+                        <li>Center the attendee&apos;s QR code in the frame with adequate lighting.</li>
                         <li>The system will automatically scan and check them into the Google Sheet.</li>
                     </ul>
                 </div>
