@@ -19,7 +19,7 @@ export default function AdminLayout({
                 const data = await res.json();
                 if (data.success) {
                     if (data.user === "spacedlead") setUsername("SPACED LEAD");
-                    else if (data.user === "robocOnlead") setUsername("TEAM LEAD");
+                    else if (data.user === "roboconlead") setUsername("TEAM LEAD");
                     else if (data.user === "siesedlead") setUsername("SIESED LEAD");
                     else if (data.user === "mcsocdlead") setUsername("MCSOCD LEAD");
                     else if (data.user === "sambedlead") setUsername("SAMBED LEAD");
