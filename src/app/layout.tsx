@@ -4,6 +4,7 @@ import { Aldrich } from "next/font/google";
 const aldrich = Aldrich({ weight: "400", subsets: ["latin"] });
 import "aos/dist/aos.css";
 import MenuContextProvider from "@/context/MenuContextProvider";
+import ParticlesCom from "@/components/Particles";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
 
@@ -25,6 +26,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <MenuContextProvider>
+          <ParticlesCom />
           {children}
           <Analytics />
         </MenuContextProvider>
