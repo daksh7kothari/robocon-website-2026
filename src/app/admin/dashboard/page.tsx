@@ -25,7 +25,7 @@ export default function AdminDashboard() {
                     if (userData.user == "spacedlead") {
                         setUsername("SIDDHANT JAIN");
                     }
-                    else if (userData.user == "robocOnlead") {
+                    else if (userData.user == "roboconlead") {
                         setUsername("ANUSHREE DATTA");
                     } else if(userData.user == "siesedlead") {
                         setUsername("ASHUTOSH");
