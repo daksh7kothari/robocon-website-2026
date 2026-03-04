@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 import toast from "react-hot-toast";
 
-export default function ScannerPage() {
+function ScannerComponent() {
     const searchParams = useSearchParams();
     const initialEvent = searchParams.get("event") || "Solidworks";
 
@@ -20,7 +20,7 @@ export default function ScannerPage() {
     const loadingRef = useRef(false);
     const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-    const fetchAnalytics = async (event: string) => {
+    const fetchAnalytics = React.useCallback(async (event: string) => {
         try {
             const res = await fetch(`/api/admin/registrations?event=${event}`);
             const json = await res.json();
@@ -32,7 +32,7 @@ export default function ScannerPage() {
         } catch (error) {
             console.error("Failed to fetch analytics", error);
         }
-    };
+    }, []);
 
     useEffect(() => {
         eventNameRef.current = eventName;
@@ -321,5 +321,18 @@ export default function ScannerPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function ScannerPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-[400px] flex flex-col items-center justify-center text-white gap-4">
+                <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                <p className="font-bold text-gray-400">Loading Scanner...</p>
+            </div>
+        }>
+            <ScannerComponent />
+        </Suspense>
     );
 }
