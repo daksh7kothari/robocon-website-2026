@@ -100,7 +100,6 @@ function buildParticipantHtml(details: RegistrationDetails): string {
                   <td style="padding:16px 20px;">
                     <p style="color:#f472b6;font-size:13px;font-weight:600;margin:0 0 8px;">📋 What's Next?</p>
                     <ul style="color:#ccc;font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
-                      <li>Install SolidWorks on your laptop (guide will be shared)</li>
                       <li>Join the WhatsApp group (link coming soon)</li>
                       <li>Show up with your laptop and enthusiasm!</li>
                     </ul>

@@ -20,6 +20,7 @@ import RecruitmentSection from "@/components/RecruitmentSection";
 import HackathonSection from "@/components/HackathonSection";
 import JoselinSection from "@/components/JoselinSection";
 import WorkshopReg from "@/app/workshopReg/page";
+import WorkshopSection from "@/components/WorkshopSection";
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -83,13 +84,19 @@ export default function Home() {
       {/* <section className="relative max-md:mt-20">
         <HackathonSection />
       </section> */}
+
+      {/*Workshop section*/}
+      <section className="relative max-md:mt-20">
+        <WorkshopSection />
+      </section>
+
       <section className="">
         <JoselinSection />
       </section>
 
       {/* Second section */}
       <section className="w-full h-full md:h-screen flex flex-col items-center justify-center mt-20 md:mt-0">
-        <div className="flex flex-col items-center" data-aos="fade-up">
+        <div className="flex flex-col items-center">
           <div className="flex flex-wrap gap-4 md:gap-0 w-full justify-center">
 
             <div className="flex items-center justify-center gap-10 flex-wrap text-white">
@@ -114,11 +121,9 @@ export default function Home() {
           </div>
         </div>
         <div className="flex md:justify-center justify-around flex-wrap lg:flex-nowrap gap-16 px-10 md:gap-44 mt-20 w-full">
-          <div className="border-l-4 border-red overflow-hidden">
+          <div className="border-l-4 border-red">
             <div
               className="md:w-[500px] px-5 md:px-10 w-full text-white"
-              data-aos="slide-right"
-              data-aos-delay="100"
             >
               <div className="text-3xl mb-5 font-bold">Our Mission</div>
               <p className="text-xl w-full">
@@ -127,11 +132,9 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="border-l-4 border-red overflow-hidden">
+          <div className="border-l-4 border-red">
             <div
               className="md:w-[500px] px-5 md:px-10 w-full"
-              data-aos="slide-right"
-              data-aos-delay="200"
             >
               <div className="text-3xl mb-5 font-bold text-white">Our Vision</div>
               <div className="text-xl w-full text-white">
@@ -153,7 +156,7 @@ export default function Home() {
         <RecruitmentSection /> */}
       {/* Third section */}
 
-      {/* <section className="w-full h-full mt-20">
+      {/*<section className="w-full h-full mt-20">
         <WorkshopReg />
       </section> */}
       <section className="w-full h-full">

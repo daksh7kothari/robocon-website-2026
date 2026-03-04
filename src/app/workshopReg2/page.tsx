@@ -78,6 +78,9 @@ export default function App() {
     if (!/^\d{10}$/.test(data.WhatsAppNumber || "")) {
       return "Please enter a valid 10-digit WhatsApp number";
     }
+    if (!data.Year || data.Year === "default") {
+      return "Please select your year";
+    }
     if (!data.Hostel || data.Hostel === "default") {
       return "Please select your hostel";
     }
@@ -460,6 +463,31 @@ export default function App() {
                   </label>
                 </div>
 
+                {/* Year */}
+                <div>
+                  <label
+                    htmlFor="Year"
+                    className="block mb-2 text-sm font-medium text-gray-400"
+                  >
+                    Year
+                  </label>
+                  <select
+                    required
+                    name="Year"
+                    id="Year"
+                    defaultValue="default"
+                    className="w-full bg-gray-800/60 border border-gray-600/50 text-white text-sm rounded-lg p-2.5 focus:ring-rose-500 focus:border-rose-500 transition-colors"
+                  >
+                    <option disabled value="default">
+                      Select one
+                    </option>
+                    <option value="1st">1st</option>
+                    <option value="2nd">2nd</option>
+                    <option value="3rd">3rd</option>
+                    <option value="4th">4th</option>
+                  </select>
+                </div>
+
                 {/* Email row */}
                 <div className="grid md:grid-cols-2 gap-5">
                   <div className="relative z-0 w-full group">
@@ -541,6 +569,7 @@ export default function App() {
                         Select one
                       </option>
                       <option value="Day Scholar">Day Scholar</option>
+                      <option value="N Block">N Block</option>
                       <option value="Kaari">Kaari</option>
                       <option value="Paari">Paari</option>
                       <option value="Oori">Oori</option>

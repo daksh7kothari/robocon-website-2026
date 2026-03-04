@@ -86,6 +86,9 @@ export default function App() {
     if (!/^\d{10}$/.test(data.WhatsAppNumber || "")) {
       return "Please enter a valid 10-digit WhatsApp number";
     }
+    if (!data.Year || data.Year === "default") {
+      return "Please select your year";
+    }
     if (!data.Hostel || data.Hostel === "default") {
       return "Please select your hostel";
     }
@@ -406,8 +409,8 @@ export default function App() {
           <div className="absolute top-40 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative z-10 text-center pt-10 pb-4 px-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium mb-5 tracking-wide">
+        <div className="relative z-10 text-center pt-8 md:pt-10 pb-4 px-5 md:px-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium mb-4 md:mb-5 tracking-wide">
             <span className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-pulse" />
             REGISTRATIONS OPEN
           </div>
@@ -425,10 +428,10 @@ export default function App() {
       </div>
 
       {/* Main Content — Payment Card + Form */}
-      <div className="max-w-6xl mx-auto px-4 pb-6">
-        <div className="flex gap-8 justify-center items-start flex-wrap lg:flex-nowrap">
-          {/* Left Column — Payment + Info */}
-          <div className="w-full max-w-[380px] space-y-5 flex-shrink-0">
+      <div className="max-w-6xl mx-auto px-5 md:px-4 pb-6">
+        <div className="flex gap-5 md:gap-8 justify-center items-start flex-wrap lg:flex-nowrap">
+          {/* Left Column — Payment + Info (shows below form on mobile) */}
+          <div className="w-full max-w-none md:max-w-[380px] space-y-4 md:space-y-5 flex-shrink-0 order-2 lg:order-1">
             {/* Payment Card */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-850 to-gray-900 border border-gray-700/30 p-6 shadow-2xl shadow-rose-500/5">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(225,29,72,0.06),transparent_70%)] pointer-events-none" />
@@ -586,9 +589,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Column — Registration Form */}
-          <div className="w-full max-w-lg">
-            <div className="rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-700/30 p-6 md:p-8 shadow-2xl backdrop-blur-sm">
+          {/* Right Column — Registration Form (shows first on mobile) */}
+          <div className="w-full max-w-none md:max-w-lg order-1 lg:order-2">
+            <div className="rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-700/30 p-5 md:p-8 shadow-2xl backdrop-blur-sm">
               <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-rose-400"
@@ -651,6 +654,31 @@ export default function App() {
                   <label className="peer-focus:font-medium absolute text-sm text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-rose-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
                     Department
                   </label>
+                </div>
+
+                {/* Year */}
+                <div>
+                  <label
+                    htmlFor="Year"
+                    className="block mb-2 text-sm font-medium text-gray-400"
+                  >
+                    Year
+                  </label>
+                  <select
+                    required
+                    name="Year"
+                    id="Year"
+                    defaultValue="default"
+                    className="w-full bg-gray-800/60 border border-gray-600/50 text-white text-sm rounded-lg p-2.5 focus:ring-rose-500 focus:border-rose-500 transition-colors"
+                  >
+                    <option disabled value="default">
+                      Select one
+                    </option>
+                    <option value="1st">1st</option>
+                    <option value="2nd">2nd</option>
+                    <option value="3rd">3rd</option>
+                    <option value="4th">4th</option>
+                  </select>
                 </div>
 
                 {/* Email row */}
@@ -734,6 +762,7 @@ export default function App() {
                         Select one
                       </option>
                       <option value="Day Scholar">Day Scholar</option>
+                      <option value="N Block">N Block</option>
                       <option value="Kaari">Kaari</option>
                       <option value="Paari">Paari</option>
                       <option value="Oori">Oori</option>
@@ -862,12 +891,12 @@ export default function App() {
       </div>
 
       {/* ─────── FAQ Section ─────── */}
-      <div className="max-w-3xl mx-auto px-4 py-16">
-        <div className="text-center mb-10">
+      <div className="max-w-3xl mx-auto px-5 md:px-4 py-10 md:py-16">
+        <div className="text-center mb-8 md:mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-4 tracking-wide">
             GOT QUESTIONS?
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-3">
             Frequently Asked{" "}
             <span className="bg-gradient-to-r from-rose-500 to-red-400 bg-clip-text text-transparent">
               Questions
@@ -889,7 +918,7 @@ export default function App() {
             >
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="w-full flex items-center justify-between p-5 text-left"
+                className="w-full flex items-center justify-between p-4 md:p-5 text-left"
               >
                 <span
                   className={`font-medium text-sm md:text-base transition-colors ${openFaq === i ? "text-white" : "text-gray-300"
